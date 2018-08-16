@@ -1,4 +1,4 @@
-import json
+import sys, json
 from random import randint
 from django.contrib.auth.models import User
 from notes.models import Note, Notebook, Tag
@@ -13,7 +13,12 @@ from notes.models import Note, Notebook, Tag
 # >>> script.import_tags()
 # >>> script.import_notes()
 
-USER = User.objects.all()[0] # First user
+try:
+	USER = User.objects.all()[0] # First user
+except:
+	print("Error getting the default user.")
+	print("Have you created a user/super-user in Django yet?")
+	sys.exit()
 
 def load_json(fname):
 	with open("dummy/"+fname) as f:
@@ -71,4 +76,4 @@ def all():
 	import_notebooks()
 	import_tags()
 	import_notes()
-	print("Imported everything!")
+	print("Finished importing notebooks, tags, and notes!")
