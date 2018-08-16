@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models import Q
 from rest_framework import generics, mixins, permissions
 from .permissions import IsOwner
 from .models import Note
@@ -32,7 +33,8 @@ class NoteList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericA
 		return self.create(request, *args, **kwargs)
 
 	def get_queryset(self, *args, **kwargs):
-		return Note.objects.all().filter(user=self.request.user)
+		user = self.request.user
+		return Note.objects.all().filter(Q(user=user) | Q(shared_with__in=[user]))
 
 	def perform_create(self, serializer):
 		serializer.save(user=self.request.user)

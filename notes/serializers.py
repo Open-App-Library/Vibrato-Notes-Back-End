@@ -15,5 +15,5 @@ class NoteSerializer(serializers.ModelSerializer):
 	user = serializers.ReadOnlyField(source="user.username")
 	class Meta:
 		model = Note
-		fields = ('id', 'title', 'text', 'notebook', 'tags', 'user')
+		fields = ('id', 'title', 'text', 'notebook', 'tags', 'user', 'shared_with')
 

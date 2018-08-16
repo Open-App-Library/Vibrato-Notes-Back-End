@@ -2,6 +2,13 @@ from rest_framework import permissions
 
 class IsOwner(permissions.BasePermission):
 	def has_object_permission(self, request, view, obj):
-		print("THE BOOLEAN:", obj.user, request.user)
-		return obj.user == request.user
+		user = request.user
+		try:
+			IsSharedWith = obj.shared_with.get(username=user.username)
+		except:
+			IsSharedWith = False
+		# If the note was created by you, or shared with you -> TRUE
+		if obj.user == user or IsSharedWith:
+			return True
+		return False
 
