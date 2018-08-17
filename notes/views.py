@@ -1,48 +1,54 @@
 from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.db.models import Q
+from django.shortcuts import render, get_object_or_404
+
 from rest_framework import generics, mixins, permissions
-from .permissions import IsOwner
-from .models import Note
-from .serializers import NoteSerializer, UserSerializer
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework.views import APIView
+from rest_framework import viewsets
+
+from .permissions import IsOwner, CanViewOrEditNoteOrNotebook
+from .models import Note, Notebook, Tag
+from .serializers import UserSerializer, PublicUserSerializer
+from .serializers import NoteSerializer, NotebookSerializer, TagSerializer
 
 # Views
 
 ## USER VIEWS ##
 
-class UserList(generics.ListAPIView):
-	permission_classes = (permissions.IsAdminUser,)
+def api_root(request, format=None):
+	return JsonResponse({
+		"message": "Welcome to the Vibrato API! Documentation coming soon."
+	})
+
+
+class UserProfile(APIView):
+	def get(self, request, format=None):
+		user = get_object_or_404(User, pk=request.user.pk)
+		serializer = UserSerializer(user, context={'request': request})
+		return Response(serializer.data)
+
+	def put(self, request, format=None):
+		user = get_object_or_404(User, pk=request.user.pk)
+		serializer = UserSerializer(user, data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+	def delete(self, request, format=None):
+		user = get_object_or_404(User, pk=request.user.pk)
+		user.delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)
+
+class UserInfo(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
 	queryset = User.objects.all()
-	serializer_class = UserSerializer
-
-class UserDetail(generics.RetrieveAPIView):
-	permission_classes = (permissions.IsAdminUser,)
-	queryset = User.objects.all()
-	serializer_class = UserSerializer
-
-## NOTE VIEWS ##
-
-class NoteList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+	serializer_class = PublicUserSerializer
 	permission_classes = (permissions.IsAuthenticated,)
-	queryset = Note.objects.all()
-	serializer_class = NoteSerializer
-
-	def get(self, request, *args, **kwargs):
-		return self.list(request, *args, **kwargs)
-
-	def post(self, request, *args, **kwargs):
-		return self.create(request, *args, **kwargs)
-
-	def get_queryset(self, *args, **kwargs):
-		user = self.request.user
-		return Note.objects.all().filter(Q(user=user) | Q(shared_with__in=[user]))
-
-	def perform_create(self, serializer):
-		serializer.save(user=self.request.user)
-
-class NoteDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
-	permission_classes = (IsOwner,)
-	queryset = Note.objects.all()
-	serializer_class = NoteSerializer
+	lookup_field = "username"
 
 	def get(self, request, *args, **kwargs):
 		return self.retrieve(request, *args, **kwargs)
@@ -52,4 +58,54 @@ class NoteDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.Dest
 
 	def delete(self, request, *args, **kwargs):
 		return self.destroy(request, *args, **kwargs)
+
+## NOTE VIEWS ##
+
+class NoteViewSet(viewsets.ModelViewSet):
+	serializer_class = NoteSerializer
+	permission_classes = (permissions.IsAuthenticated, CanViewOrEditNoteOrNotebook,)
+	queryset = Note.objects.all()
+
+	def get_queryset(self, *args, **kwargs):
+		loggedin_user = self.request.user
+		query = Note.objects.all().filter(Q(user=loggedin_user) | Q(shared_with__in=[loggedin_user]))
+		notebook = self.request.query_params.get("notebook", None)
+		if notebook:
+			query = query.filter(notebook__pk=notebook)
+		tag = self.request.query_params.get("tag", None)
+		if tag:
+			tag_array = [x.strip() for x in tag.split(',')]
+			query = query.filter(tags__in=tag_array)
+		tag_force = self.request.query_params.get("!tag", None)
+		if tag_force:
+			tag_array = [x.strip() for x in tag_force.split(',')]
+			for t in tag_array:
+				query = query.filter(tags__in=[t])
+		return query
+
+	def perform_create(self, serializer):
+		serializer.save(user=self.request.user)
+
+class NotebookViewSet(viewsets.ModelViewSet):
+	serializer_class = NotebookSerializer
+	permission_classes = (permissions.IsAuthenticated, CanViewOrEditNoteOrNotebook,)
+	queryset = Notebook.objects.all()
+
+	def get_queryset(self, *args, **kwargs):
+		loggedin_user = self.request.user
+		return Notebook.objects.all().filter(Q(user=loggedin_user) | Q(shared_with__in=[loggedin_user]))
+
+	def perform_create(self, serializer):
+		serializer.save(user=self.request.user)
+
+class TagViewSet(viewsets.ModelViewSet):
+	serializer_class = TagSerializer
+	permission_classes = (permissions.IsAuthenticated, IsOwner,)
+	queryset = Tag.objects.all()
+
+	def get_queryset(self, *args, **kwargs):
+		return Tag.objects.all().filter(user=self.request.user)
+
+	def perform_create(self, serializer):
+		serializer.save(user=self.request.user)
 
