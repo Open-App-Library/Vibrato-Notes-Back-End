@@ -1,3 +1,4 @@
 #+TITLE: Back-End TODO List
+#+Description: This file can be edited in any text-edtitor but it works best in Emacs Org-Mode.
 
 * TODO Create OAuth Authentication
