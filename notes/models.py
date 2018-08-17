@@ -20,6 +20,8 @@ class Tag(models.Model):
 class Note(models.Model):
 	title = models.CharField(max_length=120)
 	text = models.TextField(blank=True, null=True)
+	date_created = models.DateTimeField(auto_now_add=True)
+	date_modified = models.DateTimeField(auto_now=True)
 	user = models.ForeignKey('auth.User', related_name="notes", on_delete=models.CASCADE)
 	shared_with = models.ManyToManyField('auth.User', related_name="shared_notes", blank=True)
 	is_public = models.BooleanField(default=False, blank=True)

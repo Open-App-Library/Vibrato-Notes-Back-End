@@ -11,9 +11,10 @@ class CanViewOrEditNoteOrNotebook(permissions.BasePermission):
 	def has_object_permission(self, request, view, obj):
 		user = request.user
 		# If the Notebook or Note is public
-		if obj.notebook:
-			if obj.notebook.is_public and request.method in permissions.SAFE_METHODS:
-				return True
+		if hasattr(obj, 'notebook'):
+			if obj.notebook:
+				if obj.notebook.is_public and request.method in permissions.SAFE_METHODS:
+					return True
 		if obj.is_public and request.method in permissions.SAFE_METHODS:
 			return True
 		try:
