@@ -18,7 +18,8 @@ urlpatterns = [
         UserInfo.as_view(),
         name="user-info"),
     url(r'^api-auth/', include('rest_framework.urls')),
-    url(r'^jwt-auth/', obtain_jwt_token)]
+    url(r'^jwt-auth/', obtain_jwt_token)
+]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
 
