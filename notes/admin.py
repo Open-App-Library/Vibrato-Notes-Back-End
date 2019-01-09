@@ -5,4 +5,3 @@ from .models import Note, Notebook, Tag
 admin.site.register(Note)
 admin.site.register(Notebook)
 admin.site.register(Tag)
-
