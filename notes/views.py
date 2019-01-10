@@ -49,6 +49,7 @@ class UserProfile(APIView):
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 # Allows you to view the bare-minimal info of other users - no personal info
 class UserInfo(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     queryset = User.objects.all()
@@ -65,11 +66,11 @@ class UserInfo(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.Destro
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
-## NOTE VIEWS ##
 
+## NOTE VIEWS ##
 class NoteViewSet(viewsets.ModelViewSet):
     serializer_class = NoteSerializer
-    permission_classes = (permissions.IsAuthenticated, CanViewOrEditNoteOrNotebook,)
+    permission_classes = (permissions.IsAuthenticated, CanViewOrEditNoteOrNotebook)
     queryset = Note.objects.all()
     ordering_fields = ('-id',)
 

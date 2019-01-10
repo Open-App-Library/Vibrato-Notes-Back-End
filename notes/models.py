@@ -1,7 +1,5 @@
 from django.db import models
 
-# Database Models
-
 
 class Notebook(models.Model):
     title = models.CharField(max_length=70)
@@ -23,7 +21,7 @@ class Tag(models.Model):
         'auth.User', related_name="tags", on_delete=models.CASCADE)
 
     def __str__(self):
-                return self.title
+        return self.title
 
 
 class Note(models.Model):
@@ -45,4 +43,4 @@ class Note(models.Model):
     tags = models.ManyToManyField(Tag, related_name="notes", blank=True)
 
     def __str__(self):
-                return self.title
+        return self.title
