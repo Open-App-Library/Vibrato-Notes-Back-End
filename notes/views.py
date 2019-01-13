@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 
 from rest_framework import generics, mixins, permissions, status
 from rest_framework.response import Response
@@ -18,6 +18,10 @@ def api_root(request, format=None):
     return JsonResponse({
         "message": "Welcome to the Vibrato API! Documentation coming soon."
     })
+
+
+def oauth_code(request):
+    return render(request, "oauth-code.html")
 
 
 # User Views

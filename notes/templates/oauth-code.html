@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+<noscript>Please enable Javascript to use this page</noscript>
+
+{% block content %}
+<p>Please enter this code in the official Vibrato Notes app:</p>
+<p id="code"></p>
+{% endblock %}
+
+
+{% block footer %}
+<script>
+  function getHashParam(name) {
+      var match = RegExp('[#&]' + name + '=([^&]*)').exec(window.location.hash);
+      return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+  }
+  $(function() {
+      var access_token = getHashParam("access_token");
+      $("#code").text(access_token);
+  })
+</script>
+{% endblock %}
