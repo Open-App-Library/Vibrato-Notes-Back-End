@@ -71,10 +71,10 @@ class UserInfo(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.Destro
         return self.destroy(request, *args, **kwargs)
 
 
-## NOTE VIEWS ##
+# NOTE VIEWS ##
 class NoteViewSet(viewsets.ModelViewSet):
     serializer_class = NoteSerializer
-    permission_classes = (permissions.IsAuthenticated, CanViewOrEditNoteOrNotebook)
+    permission_classes = (permissions.IsAuthenticated, CanViewOrEditNoteOrNotebook,)
     queryset = Note.objects.all()
     ordering_fields = ('-id',)
 
@@ -107,7 +107,7 @@ class NoteViewSet(viewsets.ModelViewSet):
 class NotebookViewSet(viewsets.ModelViewSet):
     serializer_class = NotebookSerializer
     permission_classes = (permissions.IsAuthenticated,
-                          CanViewOrEditNoteOrNotebook)
+                          CanViewOrEditNoteOrNotebook,)
     queryset = Notebook.objects.all()
 
     def get_queryset(self, *args, **kwargs):
