@@ -22,8 +22,6 @@ urlpatterns = [
     # OAuth2
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^oauth-code/', oauth_code),
-
-
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

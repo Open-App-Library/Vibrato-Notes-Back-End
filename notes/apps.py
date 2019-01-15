@@ -2,4 +2,7 @@ from django.apps import AppConfig
 
 
 class NoteConfig(AppConfig):
-    name = 'note'
+    name = 'notes'
+
+    def ready(self):
+        from . import signals

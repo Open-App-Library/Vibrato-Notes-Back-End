@@ -41,13 +41,15 @@ class UserCreationSerializer(serializers.ModelSerializer):
 class NotebookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notebook
-        fields = ('id', 'title', 'parent', 'shared_with')
+        fields = ('sync_hash', 'id', 'title', 'parent', 'shared_with', 'row')
+        read_only_fields = ('sync_hash',)
 
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ('id', 'title')
+        fields = ('sync_hash', 'id', 'title')
+        read_only_fields = ('sync_hash',)
 
 
 class NoteSerializer(serializers.ModelSerializer):
@@ -55,5 +57,7 @@ class NoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Note
-        fields = ('id', 'date_created', 'date_modified', 'title', 'text',
-                  'notebook', 'tags', 'user', 'shared_with')
+        fields = ('sync_hash', 'id', 'date_created', 'date_modified', 'title', 'text',
+                  'notebook', 'tags', 'user', 'shared_with', 'trashed',
+                  'favorited')
+        read_only_fields = ('sync_hash',)

@@ -74,14 +74,19 @@ class UserInfo(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.Destro
 # NOTE VIEWS ##
 class NoteViewSet(viewsets.ModelViewSet):
     serializer_class = NoteSerializer
-    permission_classes = (permissions.IsAuthenticated, CanViewOrEditNoteOrNotebook,)
+    permission_classes = (permissions.IsAuthenticated,
+                          CanViewOrEditNoteOrNotebook,)
     queryset = Note.objects.all()
-    ordering_fields = ('-id',)
+    ordering = "-date_modified"
+    ordering_fields = ('id', 'date_created', 'date_modified', 'title',
+                       'favorited')
 
     def get_queryset(self, *args, **kwargs):
-        loggedin_user = self.request.user
-        query = Note.objects.order_by('-id')
-        query = query.filter(Q(user=loggedin_user) | Q(shared_with__in=[loggedin_user]))
+        user = self.request.user
+
+        requested_ordering = self.request.query_params.get("ordering",
+                                                           self.ordering)
+        query = user.notes.all().order_by(requested_ordering)
 
         notebook = self.request.query_params.get("notebook", None)
         if notebook:

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
+    'admirarchy',
     'djoser',
     'django.contrib.admin',
     'django.contrib.auth',
