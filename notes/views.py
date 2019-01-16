@@ -10,65 +10,17 @@ from rest_framework import viewsets
 
 from .permissions import IsOwner, NotePermissions, NotebookPermissions
 from .models import Note, Notebook, Tag
-from .serializers import UserSerializer, UserCreationSerializer, PublicUserSerializer
 from .serializers import NoteSerializer, NotebookSerializer, TagSerializer
 
 
 def api_root(request, format=None):
     return JsonResponse({
-        "message": "Welcome to the Vibrato API! Documentation coming soon."
+        'documentation': request.build_absolute_uri('/docs/')
     })
 
 
 def oauth_code(request):
     return render(request, "oauth-code.html")
-
-
-# User Views
-class UserCreate(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserCreationSerializer
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-
-
-# Allows logged-in user to view and change their profile details
-class UserProfile(APIView):
-    def get(self, request, format=None):
-        user = get_object_or_404(User, pk=request.user.pk)
-        serializer = UserSerializer(user, context={'request': request})
-        return Response(serializer.data)
-
-    def put(self, request, format=None):
-        user = get_object_or_404(User, pk=request.user.pk)
-        serializer = UserSerializer(user, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, format=None):
-        user = get_object_or_404(User, pk=request.user.pk)
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-# Allows you to view the bare-minimal info of other users - no personal info
-class UserInfo(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
-    queryset = User.objects.all()
-    serializer_class = PublicUserSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-    lookup_field = "username"
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
 
 
 # NOTE VIEWS ##
