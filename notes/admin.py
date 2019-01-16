@@ -1,6 +1,5 @@
 from django.contrib import admin
 from .models import Note, Notebook, Tag
-from admirarchy.toolbox import HierarchicalModelAdmin
 
 # Register your models here.
 
@@ -11,7 +10,7 @@ class NoteAdmin(admin.ModelAdmin):
 
 
 @admin.register(Notebook)
-class NotebookAdmin(HierarchicalModelAdmin):
+class NotebookAdmin(admin.ModelAdmin):
     hierarchy = True
     ordering = ('row',)
     list_display = ["title", "row"]
