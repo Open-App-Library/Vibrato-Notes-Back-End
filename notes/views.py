@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
 
-from .permissions import IsOwner, CanViewOrEditNoteOrNotebook
+from .permissions import IsOwner, NotePermissions, NotebookPermissions
 from .models import Note, Notebook, Tag
 from .serializers import UserSerializer, UserCreationSerializer, PublicUserSerializer
 from .serializers import NoteSerializer, NotebookSerializer, TagSerializer
@@ -75,35 +75,16 @@ class UserInfo(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.Destro
 class NoteViewSet(viewsets.ModelViewSet):
     serializer_class = NoteSerializer
     permission_classes = (permissions.IsAuthenticated,
-                          CanViewOrEditNoteOrNotebook,)
+                          NotePermissions,)
     queryset = Note.objects.all()
     ordering = "-date_modified"
     ordering_fields = ('id', 'date_created', 'date_modified', 'title',
                        'favorited')
+    filter_fields = ('notebook',)
 
-    def get_queryset(self, *args, **kwargs):
-        user = self.request.user
-
-        requested_ordering = self.request.query_params.get("ordering",
-                                                           self.ordering)
-        query = user.notes.all().order_by(requested_ordering)
-
-        notebook = self.request.query_params.get("notebook", None)
-        if notebook:
-            query = query.filter(notebook__pk=notebook)
-
-        tag = self.request.query_params.get("tag", None)
-        if tag:
-            tag_array = [x.strip() for x in tag.split(',')]
-            query = query.filter(tags__in=tag_array)
-
-        tag_force = self.request.query_params.get("!tag", None)
-        if tag_force:
-            tag_array = [x.strip() for x in tag_force.split(',')]
-            for t in tag_array:
-                query = query.filter(tags__in=[t])
-
-        return query
+    # def get_queryset(self, *args, **kwargs):
+    #     user = self.request.user
+    #     return user.notes.all()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -112,7 +93,7 @@ class NoteViewSet(viewsets.ModelViewSet):
 class NotebookViewSet(viewsets.ModelViewSet):
     serializer_class = NotebookSerializer
     permission_classes = (permissions.IsAuthenticated,
-                          CanViewOrEditNoteOrNotebook,)
+                          NotebookPermissions,)
     queryset = Notebook.objects.all()
 
     def get_queryset(self, *args, **kwargs):

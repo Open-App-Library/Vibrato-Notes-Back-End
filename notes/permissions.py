@@ -9,27 +9,46 @@ class IsOwner(permissions.BasePermission):
         return False
 
 
-class CanViewOrEditNoteOrNotebook(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
+class NotePermissions(permissions.BasePermission):
+    def has_object_permission(self, request, view, note):
+        print("Checkking", note.title)
         user = request.user
-        # If the Notebook or Note is public
-        if hasattr(obj, 'notebook'):
-            if obj.notebook:
-                if obj.notebook.is_public and \
-                   request.method in permissions.SAFE_METHODS:
-                    return True
-        if obj.is_public and request.method in permissions.SAFE_METHODS:
-            return True
-        try:
-            IsSharedWith = obj.shared_with.get(
-                username=user.username)
-        except:
-            IsSharedWith = False
 
-        if not obj.user == user and request.method == "DELETE":
-            return False  # Shared user is most likely trying to delete note
-
-        # If the note was created by you, or shared with you -> TRUE
-        if obj.user == user or IsSharedWith:
+        # If user is creator of note, return True
+        if user == note.user:
             return True
+
+        # If doing a safe operation and any of the conditions meet...
+        # - note is public
+        # - user is shared this note
+        # - The note's notebook is public
+        # - The user is shared the note's notebook
+        # ...return true!
+        if request.method in permissions.SAFE_METHODS:
+            if note.is_public or\
+               user in note.shared_with.all() or\
+               (note.notebook and note.notebook.is_public) or\
+               (note.notebook and user in note.notebook.shared_with):
+                return True
+
+        return False
+
+
+class NotebookPermissions(permissions.BasePermission):
+    def has_object_permission(self, request, view, notebook):
+        user = request.user
+
+        # If user is creator of note, return True
+        if user == notebook.user:
+            return True
+
+        # If doing a safe operation and any of the conditions meet...
+        # - The notebook is public
+        # - The user is shared the notebook
+        # ...return true!
+        if request.method in permissions.SAFE_METHODS:
+            if notebook.is_public or\
+               user in notebook.shared_with:
+                return True
+
         return False
