@@ -82,9 +82,9 @@ class NoteViewSet(viewsets.ModelViewSet):
                        'favorited')
     filter_fields = ('notebook',)
 
-    # def get_queryset(self, *args, **kwargs):
-    #     user = self.request.user
-    #     return user.notes.all()
+    def get_queryset(self, *args, **kwargs):
+        user = self.request.user
+        return user.notes.all()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
