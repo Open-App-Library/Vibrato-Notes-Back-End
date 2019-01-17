@@ -75,10 +75,9 @@ class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     lookup_field = "sync_hash"
 
-    def get_queryset(self, *args, **kwargs):
-        query = Tag.objects.order_by('-id')
-        query = query.filter(user=self.request.user)
-        return query
+    def get_queryset(self):
+        user = self.request.user
+        return user.tags.filter()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
