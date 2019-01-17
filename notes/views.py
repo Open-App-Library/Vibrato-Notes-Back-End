@@ -41,7 +41,6 @@ class NoteViewSet(viewsets.ModelViewSet):
                           NotePermissions,)
     queryset = Note.objects.all()
     lookup_field = "sync_hash"
-    ordering = "-date_modified"
     ordering_fields = ('id', 'date_created', 'date_modified', 'title',
                        'favorited')
     filter_fields = ('notebook',)
@@ -60,7 +59,7 @@ class NotebookViewSet(viewsets.ModelViewSet):
                           NotebookPermissions,)
     queryset = Notebook.objects.all()
     lookup_field = "sync_hash"
-    filter_fields = ('parent',)
+    filter_fields = ('sync_hash', 'id', 'parent',)
 
     def get_queryset(self):
         user = self.request.user

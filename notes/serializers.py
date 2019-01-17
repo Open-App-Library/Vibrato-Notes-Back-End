@@ -3,19 +3,6 @@ from rest_framework import serializers
 from .models import Note, Notebook, Tag
 from django.db import IntegrityError
 
-
-class RecursiveField(serializers.Serializer):
-    """
-    A magical RecursiveField class.
-    This is used in the NotebookSerializer to
-    display child notebooks.
-    """
-
-    def to_representation(self, value):
-        serializer = self.parent.parent.__class__(value, context=self.context)
-        return serializer.data
-
-
 # For Profile Page
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -50,14 +37,26 @@ class UserCreationSerializer(serializers.ModelSerializer):
         return user
 
 
+class NotebookChildren(serializers.Serializer):
+    """
+    A magical recursive field.
+    This is used in the NotebookSerializer to
+    display child notebooks.
+    """
+
+    def to_representation(self, value):
+        serializer = NotebookSerializer(value, context=self.context)
+        return serializer.data
+
+
 class NotebookSerializer(serializers.ModelSerializer):
-    children = RecursiveField(many=True)
+    children = NotebookChildren(read_only=True, many=True)
 
     class Meta:
         model = Notebook
         fields = ('sync_hash', 'id', 'title', 'parent', 'shared_with', 'row',
                   'children',)
-        read_only_fields = ('sync_hash', 'children')
+        read_only_fields = ('sync_hash', 'id', 'children')
 
 
 class TagSerializer(serializers.ModelSerializer):

@@ -3,6 +3,10 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+# If a user sets a notebook row to 255, it will move
+# the notebook to the end
+NULL_ROW_NUMBER = -255
+
 
 def _fix_order(notebooks, curNotebook=None):
     """
@@ -33,7 +37,7 @@ class Notebook(models.Model):
     shared_with = models.ManyToManyField(
         'auth.User', related_name="shared_notebooks", blank=True)
     is_public = models.BooleanField(default=False, blank=True)
-    row = models.IntegerField(default=0, blank=True)
+    row = models.IntegerField(default=NULL_ROW_NUMBER, blank=True)
 
     def fix_order(self):
         notebooks = Notebook.objects.filter(user=self.user,
@@ -41,11 +45,29 @@ class Notebook(models.Model):
         return _fix_order(notebooks, self)
 
     def save(self, *args, **kwargs):
+        # Before the super class function
+        if self.row == NULL_ROW_NUMBER:
+            sibling_notebooks = \
+                Notebook.objects.filter(parent=self.parent).order_by("-row")
+            largest_row_num = 0
+            for notebook in sibling_notebooks:
+                largest_row_num = notebook.row
+                print("Examining", notebook.title, notebook.row)
+                if notebook != self:
+                    break
+            self.row = largest_row_num + 1
+
+        # The super class function
         super().save(*args, **kwargs)
+
+        # After the super class function
         self.row = self.fix_order()
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        ordering = ('row',)
 
 
 class Tag(models.Model):
@@ -88,3 +110,6 @@ class Note(models.Model):
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        ordering = ("-date_modified",)
