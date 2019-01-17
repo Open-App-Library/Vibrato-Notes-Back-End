@@ -40,9 +40,14 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'knox.auth.TokenAuthentication',
     )
+}
+
+DJOSER = {
+    'TOKEN_MODEL': 'knox.models.AuthToken'
 }
 
 # Tokens expire in 5 years
@@ -55,7 +60,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'corsheaders',
     'rest_framework',
-    'rest_framework.authtoken',
+    'knox',
     'djoser',
     'django_filters',
     'django.contrib.admin',

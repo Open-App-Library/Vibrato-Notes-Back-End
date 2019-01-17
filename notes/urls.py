@@ -32,5 +32,5 @@ urlpatterns += [
     url(r'^', include(router.urls)),
     # API Authentication
     url(r'^users/', include('djoser.urls')),
-    url(r'^users/', include('djoser.urls.authtoken')),
+    url(r'^users/', include('knox.urls'))
 ]
