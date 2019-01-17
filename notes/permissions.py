@@ -11,7 +11,6 @@ class IsOwner(permissions.BasePermission):
 
 class NotePermissions(permissions.BasePermission):
     def has_object_permission(self, request, view, note):
-        print("Checkking", note.title)
         user = request.user
 
         # If user is creator of note, return True

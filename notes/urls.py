@@ -2,6 +2,7 @@ from django.conf.urls import url, include
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework.routers import DefaultRouter
 from rest_framework.documentation import include_docs_urls
+from rest_framework import permissions
 from .views import api_root
 from .views import NoteViewSet, NotebookViewSet, TagViewSet
 from .views import oauth_code
@@ -19,7 +20,10 @@ urlpatterns = [
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^oauth-code/', oauth_code),
 
-    url(r'^docs/', include_docs_urls(title='Vibrato Cloud API'))
+    url(r'^docs/', include_docs_urls(title='Vibrato Cloud API',
+                                     public=True,
+                                     permission_classes=(
+                                         permissions.IsAuthenticatedOrReadOnly,)))
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

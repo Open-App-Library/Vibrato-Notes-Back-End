@@ -25,16 +25,28 @@ def oauth_code(request):
 
 # NOTE VIEWS ##
 class NoteViewSet(viewsets.ModelViewSet):
+    """
+    retrieve:
+    Get a note from its sync_hash.
+
+    list:
+    List your notes.
+
+    create:
+    Create a new note.
+    """
+
     serializer_class = NoteSerializer
     permission_classes = (permissions.IsAuthenticated,
                           NotePermissions,)
     queryset = Note.objects.all()
+    lookup_field = "sync_hash"
     ordering = "-date_modified"
     ordering_fields = ('id', 'date_created', 'date_modified', 'title',
                        'favorited')
     filter_fields = ('notebook',)
 
-    def get_queryset(self, *args, **kwargs):
+    def get_queryset(self):
         user = self.request.user
         return user.notes.all()
 
@@ -47,13 +59,12 @@ class NotebookViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,
                           NotebookPermissions,)
     queryset = Notebook.objects.all()
+    lookup_field = "sync_hash"
+    filter_fields = ('parent',)
 
-    def get_queryset(self, *args, **kwargs):
-        loggedin_user = self.request.user
-        query = Notebook.objects.order_by('-id')
-        query = query.filter(Q(user=loggedin_user) |
-                             Q(shared_with__in=[loggedin_user]))
-        return query
+    def get_queryset(self):
+        user = self.request.user
+        return user.notebooks.filter(parent__exact=None)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -63,6 +74,7 @@ class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwner,)
     queryset = Tag.objects.all()
+    lookup_field = "sync_hash"
 
     def get_queryset(self, *args, **kwargs):
         query = Tag.objects.order_by('-id')
