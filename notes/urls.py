@@ -20,10 +20,11 @@ urlpatterns = [
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^oauth-code/', oauth_code),
 
-    url(r'^docs/', include_docs_urls(title='Vibrato Cloud API',
-                                     public=True,
-                                     permission_classes=(
-                                         permissions.IsAuthenticatedOrReadOnly,)))
+    url(r'^docs/',
+        include_docs_urls(title='Vibrato Cloud API',
+                          public=True,
+                          permission_classes=(
+                              permissions.IsAuthenticatedOrReadOnly,)))
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -15,7 +15,7 @@ from .serializers import NoteSerializer, NotebookSerializer, TagSerializer
 
 def api_root(request, format=None):
     return JsonResponse({
-        'documentation': request.build_absolute_uri('/docs/')
+        'documentation': request.build_absolute_uri('docs/')
     })
 
 
