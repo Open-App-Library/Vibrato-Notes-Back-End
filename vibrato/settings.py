@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path .dirname(os.path.abspath(__file__)))
@@ -48,6 +49,11 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     'TOKEN_MODEL': 'knox.models.AuthToken'
+}
+
+REST_KNOX = {
+  'TOKEN_TTL': timedelta(days=30),
+  'AUTO_REFRESH': False,
 }
 
 # Tokens expire in 5 years
