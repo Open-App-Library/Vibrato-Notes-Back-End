@@ -38,6 +38,7 @@ class Notebook(models.Model):
         'auth.User', related_name="shared_notebooks", blank=True)
     is_public = models.BooleanField(default=False, blank=True)
     row = models.IntegerField(default=NULL_ROW_NUMBER, blank=True)
+    date_modified = models.DateTimeField(auto_now=True, editable=False)
 
     def fix_order(self):
         notebooks = Notebook.objects.filter(user=self.user,
@@ -75,6 +76,7 @@ class Tag(models.Model):
     title = models.CharField(max_length=100)
     user = models.ForeignKey(
         'auth.User', related_name="tags", on_delete=models.CASCADE)
+    date_modified = models.DateTimeField(auto_now=True, editable=False)
 
     def clean(self):
         tags_with_same_name = len(Tag.objects.filter(title__iexact=self.title))
@@ -91,7 +93,7 @@ class Note(models.Model):
     title = models.CharField(max_length=120)
     text = models.TextField(blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
-    date_modified = models.DateTimeField(auto_now=True)
+    date_modified = models.DateTimeField(auto_now=True, editable=False)
     user = models.ForeignKey(
         'auth.User', related_name="notes", on_delete=models.CASCADE)
     shared_with = models.ManyToManyField(
