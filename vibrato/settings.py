@@ -44,7 +44,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'knox.auth.TokenAuthentication',
-    )
+    ),
+    'EXCEPTION_HANDLER': 'notes.views.custom_exception_handler'
 }
 
 DJOSER = {

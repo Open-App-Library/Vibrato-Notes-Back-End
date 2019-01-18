@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render
-
+from rest_framework.views import exception_handler
 from rest_framework import permissions
 from rest_framework import viewsets
 
@@ -17,6 +17,18 @@ def api_root(request, format=None):
     return JsonResponse({
         'documentation': request.build_absolute_uri('docs/')
     })
+
+
+def custom_exception_handler(exc, context):
+    # Call REST framework's default exception handler first,
+    # to get the standard error response.
+    response = exception_handler(exc, context)
+
+    # Now add the HTTP status code to the response.
+    if response is not None:
+        response.data['status_code'] = response.status_code
+
+    return response
 
 
 def oauth_code(request):
