@@ -1,12 +1,11 @@
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 
-from rest_framework import generics, mixins, permissions, status
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework import permissions
 from rest_framework import viewsets
 
-from .permissions import CanViewOrEditNote, ValidateNoteNotebook, ValidateNoteTags
+from .permissions import CanViewOrEditNote, ValidateNoteNotebook, \
+                         ValidateNoteTags
 from .permissions import CanViewOrEditNotebook, ValidateNotebookParent
 from .permissions import CanViewOrEditTag
 
