@@ -34,8 +34,6 @@ class Notebook(models.Model):
         related_name='children')
     user = models.ForeignKey(
         'auth.User', related_name="notebooks", on_delete=models.CASCADE)
-    shared_with = models.ManyToManyField(
-        'auth.User', related_name="shared_notebooks", blank=True)
     is_public = models.BooleanField(default=False, blank=True)
     row = models.IntegerField(default=NULL_ROW_NUMBER, blank=True)
     date_modified = models.DateTimeField(auto_now=True, editable=False)
@@ -49,11 +47,11 @@ class Notebook(models.Model):
         # Before the super class function
         if self.row == NULL_ROW_NUMBER:
             sibling_notebooks = \
-                Notebook.objects.filter(parent=self.parent).order_by("-row")
+                Notebook.objects.filter(user=self.user,
+                                        parent=self.parent).order_by("-row")
             largest_row_num = 0
             for notebook in sibling_notebooks:
                 largest_row_num = notebook.row
-                print("Examining", notebook.title, notebook.row)
                 if notebook != self:
                     break
             self.row = largest_row_num + 1
@@ -96,8 +94,6 @@ class Note(models.Model):
     date_modified = models.DateTimeField(auto_now=True, editable=False)
     user = models.ForeignKey(
         'auth.User', related_name="notes", on_delete=models.CASCADE)
-    shared_with = models.ManyToManyField(
-        'auth.User', related_name="shared_notes", blank=True)
     is_public = models.BooleanField(default=False, blank=True)
     notebook = models.ForeignKey(
         Notebook,

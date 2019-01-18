@@ -1,6 +1,4 @@
-from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
 from rest_framework import generics, mixins, permissions, status
@@ -8,7 +6,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
 
-from .permissions import IsOwner, NotePermissions, NotebookPermissions
+from .permissions import CanViewOrEditNote, ValidateNoteNotebook, ValidateNoteTags
+from .permissions import CanViewOrEditNotebook, ValidateNotebookParent
+from .permissions import CanViewOrEditTag
+
 from .models import Note, Notebook, Tag
 from .serializers import NoteSerializer, NotebookSerializer, TagSerializer
 
@@ -38,7 +39,9 @@ class NoteViewSet(viewsets.ModelViewSet):
 
     serializer_class = NoteSerializer
     permission_classes = (permissions.IsAuthenticated,
-                          NotePermissions,)
+                          CanViewOrEditNote,
+                          ValidateNoteNotebook,
+                          ValidateNoteTags)
     queryset = Note.objects.all()
     lookup_field = "sync_hash"
     ordering_fields = ('id', 'date_created', 'date_modified', 'title',
@@ -56,7 +59,8 @@ class NoteViewSet(viewsets.ModelViewSet):
 class NotebookViewSet(viewsets.ModelViewSet):
     serializer_class = NotebookSerializer
     permission_classes = (permissions.IsAuthenticated,
-                          NotebookPermissions,)
+                          CanViewOrEditNotebook,
+                          ValidateNotebookParent)
     queryset = Notebook.objects.all()
     lookup_field = "sync_hash"
     filter_fields = ('sync_hash', 'id', 'parent',)
@@ -71,7 +75,8 @@ class NotebookViewSet(viewsets.ModelViewSet):
 
 class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
-    permission_classes = (permissions.IsAuthenticated, IsOwner,)
+    permission_classes = (permissions.IsAuthenticated,
+                          CanViewOrEditTag)
     queryset = Tag.objects.all()
     lookup_field = "sync_hash"
 
