@@ -20,3 +20,4 @@ class NotebookAdmin(admin.ModelAdmin):
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     readonly_fields = ["sync_hash"]
+    list_display = ["title", "row"]
