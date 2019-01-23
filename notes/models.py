@@ -40,6 +40,37 @@ def _fix_order_tags(tags, curTag=None):
     return curTag_new_row_val
 
 
+class Note(models.Model):
+    sync_hash = models.UUIDField(default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=120)
+    text = models.TextField(blank=True, null=True)
+    date_created = models.DateTimeField(auto_now_add=True, editable=False)
+    date_modified = models.DateTimeField(auto_now=True, editable=False)
+    user = models.ForeignKey(
+        'auth.User', related_name="notes", on_delete=models.CASCADE)
+    is_public = models.BooleanField(default=False, blank=True)
+    notebook = models.ForeignKey(
+        'notes.Notebook',
+        related_name="notes",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL)
+    tags = models.ManyToManyField(
+        'notes.Tag',
+        related_name="notes",
+        blank=True)
+    is_encrypted = models.BooleanField(default=False)
+
+    trashed = models.BooleanField(default=False)
+    favorited = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ("-date_modified",)
+
+
 class Notebook(models.Model):
     sync_hash = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=70)
@@ -127,31 +158,3 @@ class Tag(models.Model):
 
     class Meta:
         ordering = ('row',)
-
-
-class Note(models.Model):
-    sync_hash = models.UUIDField(default=uuid.uuid4, editable=False)
-    title = models.CharField(max_length=120)
-    text = models.TextField(blank=True, null=True)
-    date_created = models.DateTimeField(auto_now_add=True, editable=False)
-    date_modified = models.DateTimeField(auto_now=True, editable=False)
-    user = models.ForeignKey(
-        'auth.User', related_name="notes", on_delete=models.CASCADE)
-    is_public = models.BooleanField(default=False, blank=True)
-    notebook = models.ForeignKey(
-        Notebook,
-        related_name="notes",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL)
-    tags = models.ManyToManyField(Tag, related_name="notes", blank=True)
-    is_encrypted = models.BooleanField(default=False)
-
-    trashed = models.BooleanField(default=False)
-    favorited = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        ordering = ("-date_modified",)
