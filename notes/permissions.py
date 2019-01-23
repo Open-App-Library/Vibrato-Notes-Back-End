@@ -21,8 +21,8 @@ class CanViewOrEditNote(permissions.BasePermission):
         # - The note's notebook is public
         # ...return true!
         if request.method in permissions.SAFE_METHODS:
-            if note.is_public or\
-               (note.notebook and note.notebook.is_public):
+            if note.public or\
+               (note.notebook and note.notebook.public):
                 return True
 
         return False
@@ -99,7 +99,7 @@ class CanViewOrEditNotebook(permissions.BasePermission):
         # - The notebook is public
         # ...return true!
         if request.method in permissions.SAFE_METHODS:
-            if notebook.is_public:
+            if notebook.public:
                 return True
 
         return False

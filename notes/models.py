@@ -48,7 +48,6 @@ class Note(models.Model):
     date_modified = models.DateTimeField(auto_now=True, editable=False)
     user = models.ForeignKey(
         'auth.User', related_name="notes", on_delete=models.CASCADE)
-    is_public = models.BooleanField(default=False, blank=True)
     notebook = models.ForeignKey(
         'notes.Notebook',
         related_name="notes",
@@ -59,10 +58,10 @@ class Note(models.Model):
         'notes.Tag',
         related_name="notes",
         blank=True)
-    is_encrypted = models.BooleanField(default=False)
-
-    trashed = models.BooleanField(default=False)
     favorited = models.BooleanField(default=False)
+    public = models.BooleanField(default=False, blank=True)
+    encrypted = models.BooleanField(default=False)
+    trashed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
@@ -74,15 +73,15 @@ class Note(models.Model):
 class Notebook(models.Model):
     sync_hash = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=70)
+    date_modified = models.DateTimeField(auto_now=True, editable=False)
     parent = models.ForeignKey(
         'self', null=True, blank=True, on_delete=models.SET_NULL,
         related_name='children')
     user = models.ForeignKey(
         'auth.User', related_name="notebooks", on_delete=models.CASCADE)
-    is_public = models.BooleanField(default=False, blank=True)
     row = models.IntegerField(default=NULL_ROW_NUMBER, blank=True)
-    date_modified = models.DateTimeField(auto_now=True, editable=False)
-    is_encrypted = models.BooleanField(default=False)
+    public = models.BooleanField(default=False, blank=True)
+    encrypted = models.BooleanField(default=False)
 
     def fix_order(self):
         notebooks = Notebook.objects.filter(user=self.user,
@@ -118,11 +117,11 @@ class Notebook(models.Model):
 class Tag(models.Model):
     sync_hash = models.UUIDField(default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=100)
+    date_modified = models.DateTimeField(auto_now=True, editable=False)
     user = models.ForeignKey(
         'auth.User', related_name="tags", on_delete=models.CASCADE)
-    date_modified = models.DateTimeField(auto_now=True, editable=False)
-    is_encrypted = models.BooleanField(default=False)
     row = models.IntegerField(default=NULL_ROW_NUMBER, blank=True)
+    encrypted = models.BooleanField(default=False)
 
     def clean(self):
         tags_with_same_name = Tag.objects.filter(

@@ -48,7 +48,7 @@ logical to append your notebook to the bottom of your notebook list rather than
 at the beginning.
 
 --------------------------------------------
--- Optional encryption using is_encrypted --
+-- Optional encryption using encrypted --
 --------------------------------------------
 
 Note: Note/Notebook/Tag data is never encrypted on the back-end. This is all up
@@ -63,9 +63,9 @@ REST API without having to deal with decrypting and re-encrypting it.
 Nothing is stopping you from sending un-encrypted data to the back-end. But
 what happens if you open up this un-encrypted data in an official Vibrato
 Notes app? How will it know that the data is not encrypted and it is just
-plain-text? Well, the answer is the 'is_encrypted' BooleanField.
+plain-text? Well, the answer is the 'encrypted' BooleanField.
 
 By default, when you create notes, notebooks or tags into the REST API,
-is_encrypted will be set to False. Once again, official Vibrato Notes apps
-will set is_encrypted to True by default since it encrypts notes on the
+encrypted will be set to False. Once again, official Vibrato Notes apps
+will set encrypted to True by default since it encrypts notes on the
 client-side by default.
