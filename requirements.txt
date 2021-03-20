@@ -15,7 +15,7 @@ future==0.17.1
 idna==2.8
 itypes==1.1.0
 jedi==0.13.2
-Jinja2==2.10
+Jinja2==2.11.3
 MarkupSafe==1.1.0
 mccabe==0.6.1
 oauthlib==3.0.0
